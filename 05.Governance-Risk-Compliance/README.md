@@ -40,8 +40,8 @@ spec:
 EOF
 
 ```
-
 <hub> $ oc apply -f managedclustersetbinding.yaml
+
 <hub> $ cat >> placement-policies.yaml << EOF
 ---
 apiVersion: cluster.open-cluster-management.io/v1beta1
@@ -132,8 +132,8 @@ metadata:
   namespace: rhacm-policies
 placementRef:
   name: prod-policies-clusters
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
+  kind: Placement
+  apiGroup: cluster.open-cluster-management.io
 subjects:
 - name: policy-networkpolicy-webserver
   kind: Policy
@@ -255,12 +255,13 @@ metadata:
   namespace: rhacm-policies
 placementRef:
   name: prod-policies-clusters
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
+  kind: Placement
+  apiGroup: cluster.open-cluster-management.io
 subjects:
 - name: policy-networkpolicy-webserver
   kind: Policy
   apiGroup: policy.open-cluster-management.io
+  
 EOF
 
 <hub> $ oc apply -f networkpolicy-policy.yaml
@@ -343,8 +344,8 @@ metadata:
   namespace: rhacm-policies
 placementRef:
   name: prod-policies-clusters
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
+  kind: Placement
+  apiGroup: cluster.open-cluster-management.io
 subjects:
 - name: policy-limitrange
   kind: Policy
