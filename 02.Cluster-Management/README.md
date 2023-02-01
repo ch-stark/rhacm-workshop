@@ -37,12 +37,14 @@ klusterlet-work-agent-6b8b99b899-vdp9r       	1/1 	Running   0      	46m
 
 <managed cluster> $ oc get pods -n open-cluster-management-agent-addon
 NAME                                           READY   STATUS    RESTARTS   AGE
-application-manager-7c8879d57f-4x7ft           1/1     Running   0          24m
-cert-policy-controller-7584887cdf-2vkv5        1/1     Running   0          24m
-config-policy-controller-56d8d84c8c-p8z72      1/1     Running   0          24m
-governance-policy-framework-65c46c46c8-xtgfq   2/2     Running   0          24m
-iam-policy-controller-56b5bf6486-795wd         1/1     Running   0          24m
-klusterlet-addon-workmgr-55bc5d4fd-2jp55       1/1     Running   0          24m
+application-manager-b6f75b87d-9ksrx           1/1     Running   0          82m
+cert-policy-controller-667f89869d-twbw5       1/1     Running   0          83m
+cluster-proxy-proxy-agent-f8798989-xzm57      2/2     Running   0          84m
+cluster-proxy-service-proxy-76445b9dc-s4tv4   1/1     Running   0          84m
+config-policy-controller-8587f7bc9c-2nd2v     2/2     Running   0          83m
+governance-policy-framework-6bcb6fb8f-9hwkl   2/2     Running   0          83m
+iam-policy-controller-6796974869-2dtdk        1/1     Running   0          83m
+klusterlet-addon-workmgr-588c7675c9-zlcdc     1/1     Running   0          84
 ```
 
 ## 2.2 Analyzing the managed cluster
