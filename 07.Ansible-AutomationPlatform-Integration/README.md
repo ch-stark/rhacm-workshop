@@ -1,16 +1,16 @@
-# Exercise 7 - Ansible Tower Integration
+# Exercise 7 - Ansible-AutomationPlatform-Integration
 
-In this exercise you will go through Ansible Tower integration with Red Hat Advanced Cluster Management for Kubernetes. You will associate AnsibleJob hooks to applications and integrate AnsibleJobs with policy violations. Ansible Tower has already been configured for your use by the instructor. You will only configure Red Hat Advanced Cluster Management for Kubernetes.
+In this exercise you will go through Ansible-AutomationPlatform-Integration with Red Hat Advanced Cluster Management for Kubernetes. You will associate AnsibleJob hooks to applications and integrate AnsibleJobs with policy violations. Ansible Automation Platform has already been configured for your use by the instructor. You will only configure Red Hat Advanced Cluster Management for Kubernetes.
 
 The instructor will provide you with -
 
-* Ansible Tower URL
-* Ansible Tower web UI username / password
-* Ansible Tower Access Token for API requests
+* Ansible Automation Platform URL
+* Ansible Automation Platform web UI username / password
+* Ansible Automation Platform Access Token for API requests
 
 ## Before You Begin
 
-In this section you will create the basic integration between RHACM and Ansible Tower. The integration is based on `Ansible Automation Platform Operator`. Make sure to install the operator before you begin the next exercises.
+In this section you will create the basic integration between RHACM and Ansible-Automation-Platform-. The integration is based on `Ansible Automation Platform Operator`. Make sure to install the operator before you begin the next exercises.
 
 Installing the operator can be done by running the next commands on the hub cluster -
 
@@ -46,19 +46,19 @@ EOF
 
 The operator will now begin the installation process.
 
-## Ansible Tower Application Integration
+## Ansible Automation Platform Application Integration
 
-In this section, you will configure Ansible Tower Jobs to run as your RHACM Application deploys. The first job will run as a _prehook_ while the second job will run as a _posthook_. The _prehook_ runs before the application resources start the deployment process while the _posthook_ job runs as soon as the resources are deployed.
+In this section, you will configure Ansible Automation Platform Jobs to run as your RHACM Application deploys. The first job will run as a _prehook_ while the second job will run as a _posthook_. The _prehook_ runs before the application resources start the deployment process while the _posthook_ job runs as soon as the resources are deployed.
 
-Both Ansible Job hooks initiate the same Job Template on Ansible Tower called _Logger_. The _Logger_ Job Template creates a log in a dedicated file for each initiation of the Job Template. Afterwards, the _Logger_ Job Template exposes the log file on a local web server on Ansible Tower.
+Both Ansible Job hooks initiate the same Job Template on Ansible Automation Platform called _Logger_. The _Logger_ Job Template creates a log in a dedicated file for each initiation of the Job Template. Afterwards, the _Logger_ Job Template exposes the log file on a local web server on Ansible Automation Platform.
 
-The participants can view all log files on the Ansible Tower server by navigating to the URL provided by the instructor in **port 80**.
+The participants can view all log files on the Ansible Automation Platform server by navigating to the URL provided by the instructor in **port 80**.
 
 The _Logger_ Ansible Role can be found at [logger role](ansible-playbooks/roles/logger) directory.
 
 ### Setting up Authentication
 
-In order to allow RHACM to access Ansible Tower you must set up a Namespace scoped secret for RHACM to use. RHACM uses the secret to authenticate against the Ansible Tower instance. The secret contains the Ansible Tower URL and Access Token.
+In order to allow RHACM to access Ansible Automation Platform you must set up a Namespace scoped secret for RHACM to use. RHACM uses the secret to authenticate against the Ansible Automation Platform instance. The secret contains the Ansible Automation Platform URL and Access Token.
 
 Before creating the secret itself, make sure the namespace that populates the secret exists by running the next command on the **hub** cluster -
 
@@ -68,12 +68,12 @@ Before creating the secret itself, make sure the namespace that populates the se
 
 To create the secret, navigate to **Credentials** -> **Add credentials** -> **Red Hat Ansible Automation Platform** in the RHACM UI and fill the next fields -
 
-- Credentials name: **ansible-tower**
+- Credentials name: **ansible-Automation Platform**
 - Namespace: **mariadb**
 
 Press **Next**.
 
-At the next screen, specify the **Ansible Tower host** and **Ansible Tower token** provided by the instructor.
+At the next screen, specify the **Ansible Automation Platform host** and **Ansible Automation Platform token** provided by the instructor.
 
 Press **Next**. Review the information, and press on **Add**.
 
@@ -88,14 +88,14 @@ Change the `pathname` definition in the Channel resource in the [application.yml
 Apply the application resources from **your fork** -
 
 ```
-<hub> $ oc apply -f https://raw.githubusercontent.com/<your-username>/rhacm-workshop/master/07.Ansible-Tower-Integration/demo-application/rhacm-resources/application.yml
+<hub> $ oc apply -f https://raw.githubusercontent.com/<your-username>/rhacm-workshop/master/07.Ansible-Automation Platform-Integration/demo-application/rhacm-resources/application.yml
 ```
 
 Navigate to **Applications** -> **mariadb-app** in RHACM's UI. Note that the application has been deployed successfully alongside its pre and post hooks.
 
 ![ansible-application](images/application-ansible.png)
 
-If you navigate to `http://<ansible-tower-url>/logs/<your-name>.log` you will notice the output of the Logger Ansible Job Template.
+If you navigate to `http://<ansible-Automation Platform-url>/logs/<your-name>.log` you will notice the output of the Logger Ansible Job Template.
 
 ```
 Wed Sep 29 16:20:27 UTC 2021 Ansible Job was triggered by mariadb as prehook in clusters ['local-cluster'].
@@ -117,10 +117,10 @@ prejob-1-4be802    15m
 
 Name:         prejob-1-4be802
 Namespace:    mariadb
-Labels:       tower_job_id=13
+Labels:       Automation Platform_job_id=13
 Annotations:  apps.open-cluster-management.io/hook-type: prehook
               apps.open-cluster-management.io/hosting-subscription: mariadb/mariadb-app
-API Version:  tower.ansible.com/v1alpha1
+API Version:  Automation Platform.ansible.com/v1alpha1
 Kind:         AnsibleJob
 Metadata:
     Manager:    OpenAPI-Generator
@@ -141,7 +141,7 @@ Spec:
       local-cluster
     trigger_name:     mariadb
   job_template_name:  Logger
-  tower_auth_secret:  ansible-tower
+  Automation Platform_auth_secret:  ansible-Automation Platform
 Status:
   Ansible Job Result:
     Changed:   true
@@ -166,7 +166,7 @@ Status:
   k8sJob:
     Created:  true
     Env:
-      Secret Namespaced Name:  mariadb/ansible-tower
+      Secret Namespaced Name:  mariadb/ansible-Automation Platform
       Template Name:           Logger
       Verify SSL:              false
     Message:                   Monitor the job.batch status for more details with the following commands:
@@ -178,15 +178,15 @@ Status:
 Events:               <none>
 ```
 
-More information can be found in the Ansible Tower UI. Log into the Ansible Tower UI using the URL and credentials provided by the instructor.
+More information can be found in the Ansible Automation Platform UI. Log into the Ansible Automation Platform UI using the URL and credentials provided by the instructor.
 
 At the main dashboard, take a look at the **Recent Job Runs** tab. Press on the `Logger` Job Run that matches your timestamp.
 
-![tower-result](images/tower-result.png)
+![Automation Platform-result](images/Automation Platform-result.png)
 
 ### Updating an Application
 
-Now that you have seen how Ansible Tower integrates with RHACM Applications, let's add another resource to the application. Adding a resource to the application demonstrates how AnsibleJobs are affected by changes in the application structure.
+Now that you have seen how Ansible Automation Platform integrates with RHACM Applications, let's add another resource to the application. Adding a resource to the application demonstrates how AnsibleJobs are affected by changes in the application structure.
 
 In **your fork** of this repository, add a file called `service.yaml` under the [mariadb-resources](./mariadb-resources) directory. Paste the next resource to the `service.yaml` file. Make sure to commit the changes to GitHub.
 
@@ -224,7 +224,7 @@ prejob-1-e18776    28m
 
 The first AnsibleJob ran before applying the new Service resource, while the second one ran after applying it.
 
-If you take a look at the log file created by Ansible Tower at `http://<ansible-tower-url>/logs/<your-name>.log` you'll notice the **new** logs that the Logger Job Template has created. Note the timestamp of the latest logs in the file.
+If you take a look at the log file created by Ansible Automation Platform at `http://<ansible-Automation Platform-url>/logs/<your-name>.log` you'll notice the **new** logs that the Logger Job Template has created. Note the timestamp of the latest logs in the file.
 
 ```
 Wed Sep 29 16:20:27 UTC 2021 Ansible Job was triggered by mariadb as prehook in clusters ['local-cluster'].
@@ -233,13 +233,13 @@ Wed Sep 29 17:20:57 UTC 2021 Ansible Job was triggered by mariadb as prehook in 
 Wed Sep 29 17:21:49 UTC 2021 Ansible Job was triggered by mariadb as posthook in clusters ['local-cluster'].
 ```
 
-## Ansible Tower Governance Integration
+## Ansible Automation Platform Governance Integration
 
-In this section, you will configure Ansible Tower Jobs to run as a violation is initiated in one of your policies.
+In this section, you will configure Ansible Automation Platform Jobs to run as a violation is initiated in one of your policies.
 
 ### Setting up Authentication
 
-In order to allow RHACM to access Ansible Tower you must set up a **Namespace scoped** secret for RHACM to use. A secret must be created for each namespace that interacts with Ansible Tower. Therefore, you must create the secret in the namespace that contains the policies as well.
+In order to allow RHACM to access Ansible Automation Platform you must set up a **Namespace scoped** secret for RHACM to use. A secret must be created for each namespace that interacts with Ansible Automation Platform. Therefore, you must create the secret in the namespace that contains the policies as well.
 
 Before creating the secret itself, make sure the namespace that populates the secret exists by running the next command -
 
@@ -249,12 +249,12 @@ Before creating the secret itself, make sure the namespace that populates the se
 
 To create the secret, navigate to **Credentials** -> **Red Hat Ansible Automation Platform** in the RHACM UI and fill the next fields -
 
-- Credentials name: **ansible-tower**
+- Credentials name: **ansible-Automation Platform**
 - Namespace: **rhacm-policies**
 
 Press **Next**.
 
-At the next screen, specify the **Ansible Tower host** and **Ansible Tower token** provided by the instructor.
+At the next screen, specify the **Ansible Automation Platform host** and **Ansible Automation Platform token** provided by the instructor.
 
 Press **Next**. Review the information, and press on **Add**.
 
@@ -267,7 +267,7 @@ In this example you will create a policy that monitors whether a _forbidden name
 The next Policy will initiate an alert if a namespace with the name `forbidden-namespace` is present in the cluster. Apply the policy to the hub cluster -
 
 ```
-<hub> $ oc apply -f https://raw.githubusercontent.com/michaelkotelnikov/rhacm-workshop/master/07.Ansible-Tower-Integration/demo-policy/rhacm-resources/policy.yaml
+<hub> $ oc apply -f https://raw.githubusercontent.com/michaelkotelnikov/rhacm-workshop/master/07.Ansible-Automation Platform-Integration/demo-policy/rhacm-resources/policy.yaml
 ```
 
 After creating the policy, make sure that the policy works as expected. Create a namespace with the name `forbidden-namespace`, on the managed cluster.
@@ -297,7 +297,7 @@ spec:
       k8s_password: <K8S password>
       k8s_username: <K8S username>
     name: K8S-Namespace
-    secret: ansible-tower
+    secret: ansible-Automation Platform
     type: AnsibleJob
   mode: once
   policyRef: policy-remove-dangerous-namespace
@@ -311,7 +311,7 @@ spec:
 
  After modifying the parameters, create the PolicyAutomation object on the hub cluster in the `rhacm-policies` namespace.
 
- Note that as soon as you create the PolicyAutomatiob object, an AnsibleJob object is created in the `rhacm-policies` namespace. The AnsibleJob marks that the Ansible Job Template on Ansible Tower has been initiated.
+ Note that as soon as you create the PolicyAutomatiob object, an AnsibleJob object is created in the `rhacm-policies` namespace. The AnsibleJob marks that the Ansible Job Template on Ansible Automation Platform has been initiated.
 
  ```
 <hub> $ oc get ansiblejob -n rhacm-policies
@@ -320,9 +320,9 @@ NAME                                               AGE
 namespace-policy-automation-once-2bgv8             46s
  ```
 
- If you log into the Ansible Tower web interface, you'll notice that the K8S-Namespace Job Template has been initiated. The Job indicates that the forbidden namespace has been removed.
+ If you log into the Ansible Automation Platform web interface, you'll notice that the K8S-Namespace Job Template has been initiated. The Job indicates that the forbidden namespace has been removed.
 
- ![k8s-namespace-tower](images/k8s-namespace-tower.png)
+ ![k8s-namespace-Automation Platform](images/k8s-namespace-Automation Platform.png)
 
  Now, take a look at the Governance dashboard in RHACM. Note that the violation is no longer present in the policy you have created. The forbidden namespace is no longer present.
 
