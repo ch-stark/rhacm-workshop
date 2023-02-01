@@ -27,8 +27,11 @@ spec:
             environment: prod
 EOF
 
-<hub> $ oc apply -f placement-gatekeeper-route-httpsonly.yaml
 ```
+<hub> $ oc apply -f placement-gatekeeper.yaml
+
+
+<hub> $ cat >> placement-gatekeeper-route-httpsonly.yaml << EOF
 
 ---
 apiVersion: cluster.open-cluster-management.io/v1beta1
@@ -47,22 +50,25 @@ spec:
             environment: prod
 EOF
 
+<hub> $ oc apply -f placement-gatekeeper-route-httpsonly.yaml
 
 
-```
 <hub> $ cat >> policy-gatekeeper-operator.yaml << EOF
 ---
+# This policy verifies the installation of the official and supported version of
+# the Gatekeeper Operator on the managed clusters.
+#
+# If set to "enforce" it'll install the operator.
 apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
   name: policy-gatekeeper-operator
-  namespace: rhacm-policies
   annotations:
     policy.open-cluster-management.io/standards: NIST SP 800-53
     policy.open-cluster-management.io/categories: CM Configuration Management
     policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
 spec:
-  remediationAction: enforce
+  remediationAction: inform
   disabled: false
   policy-templates:
   - objectDefinition:
@@ -71,7 +77,7 @@ spec:
       metadata:
         name: gatekeeper-operator-product-sub
       spec:
-        remediationAction: enforce
+        remediationAction: inform
         severity: high
         object-templates:
           - complianceType: musthave
@@ -91,9 +97,28 @@ spec:
       apiVersion: policy.open-cluster-management.io/v1
       kind: ConfigurationPolicy
       metadata:
+        name: gatekeeper-operator-status
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: operators.coreos.com/v1alpha1
+              kind: ClusterServiceVersion
+              metadata:
+                namespace: openshift-gatekeeper-system
+              spec:
+                displayName: Gatekeeper Operator
+              status:
+                phase: Succeeded   # check the csv status to determine if operator is running or not
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
         name: gatekeeper
       spec:
-        remediationAction: enforce
+        remediationAction: inform
         severity: high
         object-templates:
           - complianceType: musthave
@@ -104,16 +129,44 @@ spec:
                 name: gatekeeper
               spec:
                 audit:
+                  auditChunkSize: 500
                   logLevel: INFO
                   replicas: 1
-                image:
-                  image: 'registry.redhat.io/rhacm2/gatekeeper-rhel8:v3.3.0'
                 validatingWebhook: Enabled
                 mutatingWebhook: Disabled
                 webhook:
                   emitAdmissionEvents: Enabled
                   logLevel: INFO
                   replicas: 2
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: gatekeeper-status
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Pod
+              metadata:
+                namespace: openshift-gatekeeper-system
+                labels:
+                  control-plane: audit-controller
+              status:
+                phase: Running   # check the pod status to determine if operator is running or not
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Pod
+              metadata:
+                namespace: openshift-gatekeeper-system
+                labels:
+                  control-plane: controller-manager
+              status:
+                phase: Running   # check the pod status to determine if operator is running or not
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
@@ -128,7 +181,6 @@ subjects:
 - name: policy-gatekeeper-operator
   kind: Policy
   apiGroup: policy.open-cluster-management.io
----
 EOF
 
 <hub> $ oc apply -f policy-gatekeeper-operator.yaml
