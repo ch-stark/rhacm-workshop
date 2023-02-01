@@ -8,6 +8,47 @@ In this section you create and manage Gatekeeper policies. The policies are base
 
 Apply the next policy to the hub cluster. The policy installs the Gatekeeper operator on the managed cluster.
 
+
+<hub> $ cat >> placement-gatekeeper.yaml << EOF
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: placement-policy-gatekeeper-operator
+  namespace: rhacm-policies
+spec:
+  numberOfClusters: 3
+  clusterSets:
+    - global
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            environment: prod
+EOF
+
+<hub> $ oc apply -f placement-gatekeeper-route-httpsonly.yaml
+```
+
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: placement-gatekeeper-route-httpsonly
+  namespace: rhacm-policies
+spec:
+  numberOfClusters: 3
+  clusterSets:
+    - global
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            environment: prod
+EOF
+
+
+
 ```
 <hub> $ cat >> policy-gatekeeper-operator.yaml << EOF
 ---
@@ -81,25 +122,13 @@ metadata:
   namespace: rhacm-policies
 placementRef:
   name: placement-policy-gatekeeper-operator
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
 subjects:
 - name: policy-gatekeeper-operator
   kind: Policy
   apiGroup: policy.open-cluster-management.io
 ---
-apiVersion: apps.open-cluster-management.io/v1
-kind: PlacementRule
-metadata:
-  name: placement-policy-gatekeeper-operator
-  namespace: rhacm-policies
-spec:
-  clusterConditions:
-    - status: "True"
-      type: ManagedClusterConditionAvailable
-  clusterSelector:
-    matchExpressions:
-      - { key: environment, operator: In, values: ["production"] }
 EOF
 
 <hub> $ oc apply -f policy-gatekeeper-operator.yaml
@@ -218,26 +247,13 @@ metadata:
   namespace: rhacm-policies
 placementRef:
   name: placement-policy-gatekeeper-route-httpsonly
-  kind: PlacementRule
-  apiGroup: apps.open-cluster-management.io
+  apiGroup: cluster.open-cluster-management.io
+  kind: Placement
 subjects:
   - name: policy-gatekeeper-route-httpsonly
     kind: Policy
     apiGroup: policy.open-cluster-management.io
 ---
-apiVersion: apps.open-cluster-management.io/v1
-kind: PlacementRule
-metadata:
-  name: placement-policy-gatekeeper-route-httpsonly
-  namespace: rhacm-policies
-spec:
-  clusterConditions:
-    - status: "True"
-      type: ManagedClusterConditionAvailable
-  clusterSelector:
-    matchExpressions:
-      - { key: environment, operator: In, values: ["production"] }
-EOF
 
 <hub> $ oc apply -f policy-gatekeeper-httpsonly.yaml
 ```
