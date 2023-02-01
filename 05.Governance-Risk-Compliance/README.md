@@ -26,24 +26,41 @@ EOF
 
 After the namespace is created, create a PlacementRule resource. We will use the PlacementRule to associate the below policies with all clusters that are associated with the environment=production label.
 
-```
-<hub> $ cat >> placementrule-policies.yaml << EOF
+
+
+ $ cat >> managedclustersetbinding.yaml << EOF
 ---
-apiVersion: apps.open-cluster-management.io/v1
-kind: PlacementRule
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: ManagedClusterSetBinding
 metadata:
-  name: prod-policies-clusters
+  name: global
   namespace: rhacm-policies
 spec:
-  clusterConditions:
-    - type: ManagedClusterConditionAvailable
-      status: "True"
-  clusterSelector:
-    matchLabels:
-      environment: production
+  clusterSet: global
 EOF
 
-<hub> $ oc apply -f placementrule-policies.yaml
+```
+
+<hub> $ oc apply -f managedclustersetbinding.yaml
+<hub> $ cat >> placement-policies.yaml << EOF
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: rhacm-policies
+  namespace: rhacm-policies
+spec:
+  numberOfClusters: 3
+  clusterSets:
+    - global
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            environment: prod
+EOF
+
+<hub> $ oc apply -f placement-policies.yaml
 ```
 
 ## Policy #1 - Network Security
