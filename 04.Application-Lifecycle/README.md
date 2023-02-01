@@ -126,7 +126,7 @@ apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: ManagedClusterSetBinding
 metadata:
   name: global
-  namespace: ocmgs
+  namespace: openshift-gitops
 spec:
   clusterSet: global
 EOF
@@ -142,7 +142,7 @@ Create the Placement resource and bind it to `all-clusters` ManagedClusterSet. N
 apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
 metadata:
-  name: all-clusters
+  name: global
   namespace: openshift-gitops
 spec:
   clusterSets:
@@ -188,9 +188,9 @@ The applications are based on one [helm](https://helm.sh/) chart. Each applicati
 To create the ApplicationSet resource run the next commands -
 
 ```
-<hub> $ oc apply -f https://raw.githubusercontent.com/michaelkotelnikov/rhacm-workshop/master/04.Application-Lifecycle/exercise-argocd/argocd-resources/appproject.yaml
+<hub> $ oc apply -f https://raw.githubusercontent.com/ch-stark/rhacm-workshop/master/04.Application-Lifecycle/exercise-argocd/argocd-resources/appproject.yaml
 
-<hub> $ oc apply -f https://raw.githubusercontent.com/michaelkotelnikov/rhacm-workshop/master/04.Application-Lifecycle/exercise-argocd/argocd-resources/applicationset.yaml
+<hub> $ oc apply -f https://raw.githubusercontent.com/ch-stark/rhacm-workshop/master/04.Application-Lifecycle/exercise-argocd/argocd-resources/applicationset.yaml
 ```
 
 Note that two application instances have been created in the ArgoCD UI -

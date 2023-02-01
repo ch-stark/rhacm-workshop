@@ -6,7 +6,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/michaelkotelnikov/rhacm-workshop.git
+      repoURL: https://github.com/ch-stark/rhacm-workshop.git
       revision: master
       directories:
       - path: 04.Application-Lifecycle/exercise-argocd/application-resources/values/*
