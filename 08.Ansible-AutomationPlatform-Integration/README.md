@@ -34,7 +34,7 @@ metadata:
   name: ansible-automation-operator
   namespace: ansible-automation-platform
 spec:
-  channel: stable-2.1-cluster-scoped
+  channel: stable-2.3-cluster-scoped
   installPlanApproval: Automatic
   name: ansible-automation-platform-operator
   source: redhat-operators
@@ -46,15 +46,39 @@ EOF
 
 The operator will now begin the installation process.
 
-## Ansible Automation Platform Application Integration
 
-In this section, you will configure Ansible Automation Platform Jobs to run as your RHACM Application deploys. The first job will run as a _prehook_ while the second job will run as a _posthook_. The _prehook_ runs before the application resources start the deployment process while the _posthook_ job runs as soon as the resources are deployed.
+Setup the controller
 
-Both Ansible Job hooks initiate the same Job Template on Ansible Automation Platform called _Logger_. The _Logger_ Job Template creates a log in a dedicated file for each initiation of the Job Template. Afterwards, the _Logger_ Job Template exposes the log file on a local web server on Ansible Automation Platform.
+<hub> $ cat >> ansible-controller.yaml << EOF
+apiVersion: automationcontroller.ansible.com/v1beta1
+kind: AutomationController
+metadata:
+  name: controller
+  namespace: ansible-automation-platform
+spec:
+  create_preload_data: true
+  route_tls_termination_mechanism: Edge
+  garbage_collect_secrets: false
+  ingress_type: Route
+  loadbalancer_port: 80
+  no_log: true
+  image_pull_policy: IfNotPresent
+  projects_storage_size: 8Gi
+  auto_upgrade: true
+  task_privileged: false
+  projects_storage_access_mode: ReadWriteMany
+  set_self_labels: true
+  projects_persistence: false
+  replicas: 1
+  admin_user: admin
+  loadbalancer_protocol: http
+  nodeport_port: 30080
+EOF
 
-The participants can view all log files on the Ansible Automation Platform server by navigating to the URL provided by the instructor in **port 80**.
+<hub> $ oc apply -f ansible-controller.yaml
+```
 
-The _Logger_ Ansible Role can be found at [logger role](ansible-playbooks/roles/logger) directory.
+
 
 ### Setting up Authentication
 

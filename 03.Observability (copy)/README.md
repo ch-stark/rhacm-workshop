@@ -202,11 +202,9 @@ Make sure that the alert works as expected.
 
 In this section you will add your own dashboard to the default dashboards that come with MCO.
 
-Before you can create a custom dashboard, I highly recommend you to review this [blog]( 
-(https://cloud.redhat.com/blog/how-to-observe-your-clusters-with-red-hat-advanced-cluster-management-customize-the-grafana-dashboard))
+Before you can create a custom dashboard, you need to spin up an instance of a "Development Grafana" in which you'll design your dashboard. Follow the steps described in slides 85 and 86 in the [workshop's presentation](https://docs.google.com/presentation/d/1LCPvIT_nF5hwnrfYdlD0Zie4zdDxc0kxZtW3Io5jfFk/edit?usp=sharing) to create the development instance of Grafana.
 
-
-
+**NOTE** Make sure to log into the Grafana Dev instance with the wanted `admin` user before you run the `./switch-to-grafana-admin.sh` script!
 
 
 #### 3.4.1 - Panel #1 - Available memory per node
