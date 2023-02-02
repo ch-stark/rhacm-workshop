@@ -351,3 +351,38 @@ namespace-policy-automation-once-2bgv8             46s
  Now, take a look at the Governance dashboard in RHACM. Note that the violation is no longer present in the policy you have created. The forbidden namespace is no longer present.
 
  ![forbidden-namespace-no-violation](images/forbidden-namespace-no-violation.png)
+
+
+
+Inspect the Job from Ansible
+
+
+{
+  "hub_cluster": "policy-grc-cp-xxx",
+  "policy_name": "test",
+  "policy_namespace": "ansible-automation-platform",
+  "policy_sets": [],
+  "policy_violations": {
+    "local-cluster": {
+      "compliant": "NonCompliant",
+      "details": [
+        {
+          "compliant": "NonCompliant",
+          "history": [
+            {
+              "lastTimestamp": "2023-02-02T15:48:34Z",
+              "message": "NonCompliant; violation - namespaces not found: [prodnamespace] missing"
+            }
+          ]
+        }
+      ],
+      "violation_message": "NonCompliant; violation - namespaces not found: [prodnamespace] missing"
+    }
+  },
+  "target_clusters": [
+    "local-cluster"
+  ],
+  "urgent": "yes"
+}
+
+

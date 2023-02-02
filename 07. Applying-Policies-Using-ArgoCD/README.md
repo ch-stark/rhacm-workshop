@@ -9,11 +9,44 @@ The PolicyGenerator is a Kustomize plugin to wrap Kubernetes manifests in Polici
 
 <hub> $ cat >> argocd-policy-generator-integration.yaml << EOF
 ---
+---
+apiVersion: cluster.open-cluster-management.io/v1beta2
+kind: ManagedClusterSetBinding
+metadata:
+  name: default
+  namespace: policies
+spec:
+  clusterSet: default
+---
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: openshift-gitops-group
+  namespace: openshift-gitops-operator
+spec:
+  targetNamespaces: []
+---
+apiVersion: operators.coreos.com/v1alpha1
+kind: Subscription
+metadata:
+  name: openshift-gitops-operator
+  namespace: openshift-gitops-operator
+spec:
+  channel: "gitops-1.6"
+  installPlanApproval: Automatic
+  name: openshift-gitops-operator
+  source: redhat-operators
+  sourceNamespace: openshift-marketplace
+  config:
+    env:
+      - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
+        value: 'openshift-gitops, policies'
+---
 apiVersion: argoproj.io/v1alpha1
 kind: ArgoCD
 metadata:
   name: policies
-  namespace: openshift-gitops
+  namespace: policies
 spec:
   resourceTrackingMethod: label+annotation 
   server:
@@ -44,7 +77,7 @@ spec:
       command:
       - sh
       - -c
-      image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel8:v2.7.1
+      image: registry.redhat.io/rhacm2/multicluster-operators-subscription-rhel8:v2.6.2
       name: policy-generator-install
       volumeMounts:
       - mountPath: /policy-generator
@@ -96,17 +129,17 @@ roleRef:
   name: cluster-admin
 subjects:
 - kind: ServiceAccount
-  name: openshift-gitops-application-controller
-  namespace: openshift-gitops
+  name: policies-argocd-application-controller
+  namespace: policies
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: policies-integration
-  namespace: openshift-gitops
+  name: policies6
+  namespace: policies
 spec:
   destination:
-    namespace: openshift-gitops
+    namespace: policies
     server: https://kubernetes.default.svc
   project: policies
   source:
@@ -120,12 +153,11 @@ spec:
       selfHeal: false
       prune: true           
 ---
- 
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: policies
-  namespace: openshift-gitops
+  namespace: policies
   # Finalizer that ensures that project is not deleted until it is not referenced by any application
   finalizers:
     - resources-finalizer.argocd.argoproj.io
@@ -137,7 +169,7 @@ spec:
     server: '*'
   clusterResourceWhitelist:
   - group: '*'
-    kind: '*'
+    kind: '*'    
 EOF
 
 <hub> $ oc apply -f argocd-policy-generator-integration.yaml
