@@ -119,7 +119,6 @@ Create the ManagedClusterSetBinding resource to bind the `local-cluster` Managed
 
 ```
 
-<hub> oc create ns ocmgs
  $ cat >> managedclustersetbinding.yaml << EOF
 ---
 apiVersion: cluster.open-cluster-management.io/v1beta1
