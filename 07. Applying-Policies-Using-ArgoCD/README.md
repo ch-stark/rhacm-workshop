@@ -1,6 +1,6 @@
 # Exercise 7 - Using ArgoCD PolicyGenerator and Kustomize
 
-In this exercise you will go through the Compliance features that come with Open Policy Agent Gatekeeper and the Compliance Operator. You will apply a number of policies to the cluster in order to comply with global security and management standards.
+In this exercise you will apply policies using ArgoCD
 
 ## PolicyGenerator
 
@@ -9,14 +9,23 @@ The PolicyGenerator is a Kustomize plugin to wrap Kubernetes manifests in Polici
 
 <hub> $ cat >> argocd-policy-generator-integration.yaml << EOF
 ---
----
 apiVersion: cluster.open-cluster-management.io/v1beta2
 kind: ManagedClusterSetBinding
 metadata:
-  name: default
+  name: global
   namespace: policies
 spec:
-  clusterSet: default
+  clusterSet: global
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: openshift-gitops-operator
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: policies
 ---
 apiVersion: operators.coreos.com/v1
 kind: OperatorGroup
@@ -32,7 +41,7 @@ metadata:
   name: openshift-gitops-operator
   namespace: openshift-gitops-operator
 spec:
-  channel: "gitops-1.6"
+  channel: "gitops-1.7"
   installPlanApproval: Automatic
   name: openshift-gitops-operator
   source: redhat-operators
@@ -41,6 +50,18 @@ spec:
     env:
       - name: ARGOCD_CLUSTER_CONFIG_NAMESPACES
         value: 'openshift-gitops, policies'
+EOF
+
+<hub> $ oc apply -f argocd-policy-generator-integration.yaml
+```
+
+
+wait for ca 30 seconds to complete the installation of the Operator
+
+
+
+
+<hub> $ cat >> argocd-policy-generator-integration-config.yaml << EOF
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: ArgoCD
@@ -135,7 +156,7 @@ subjects:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: policies6
+  name: policies_gatekeeper
   namespace: policies
 spec:
   destination:
@@ -172,8 +193,12 @@ spec:
     kind: '*'    
 EOF
 
-<hub> $ oc apply -f argocd-policy-generator-integration.yaml
+<hub> $ oc apply -f argocd-policy-generator-integration-config.yaml
 ```
+
+
+
+
 
 Review the results in the UI
 
