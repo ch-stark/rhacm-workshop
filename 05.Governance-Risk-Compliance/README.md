@@ -47,17 +47,31 @@ EOF
 apiVersion: cluster.open-cluster-management.io/v1beta1
 kind: Placement
 metadata:
-  name: rhacm-policies
+  name: rhacm-policies-hub
   namespace: rhacm-policies
 spec:
-  numberOfClusters: 3
+  numberOfClusters: 1
   clusterSets:
     - global
   predicates:
     - requiredClusterSelector:
         labelSelector:
           matchLabels:
-            environment: prod
+            name: local-cluster
+---
+apiVersion: cluster.open-cluster-management.io/v1beta1
+kind: Placement
+metadata:
+  name: rhacm-policies-fleet
+  namespace: rhacm-policies
+spec:
+  clusterSets:
+    - global
+  predicates:
+    - requiredClusterSelector:
+        labelSelector:
+          matchLabels:
+            environment: prod            
 EOF
 
 <hub> $ oc apply -f placement-policies.yaml
@@ -152,7 +166,7 @@ After the creation of the objects, navigate to **Governance** -> **Policies** in
 
 Make sure that the policy is effective by trying to navigate to the application once again - **https://&lt;webserver application route>/application.html**. (The application should not be accessible).
 
-In order to understand the difference between the various _complianceType_ values you can consult [https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.4/html-single/governance/index#configuration-policy-yaml-table](https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.4/html-single/governance/index#configuration-policy-yaml-table):
+In order to understand the difference between the various _complianceType_ values you can consult [https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.7/html-single/governance/index#configuration-policy-yaml-table](https://access.redhat.com/documentation/en-us/red_hat_advanced_cluster_management_for_kubernetes/2.7/html-single/governance/index#configuration-policy-yaml-table):
  * `musthave` will enforce the object and a subset of the fields
  * `mustonlyhave` will enforce the object with name and all of its fields
  * `mustnothave` will enforce that an object with the same name or labels must not exist
@@ -467,23 +481,6 @@ spec:
 <hub> $ oc login -u workshop-admin -p redhat
 ```
 
-5. Run the next command to allow your username deploy policies via Git (If you're not using the `workshop-admin` user to run the command, make sure to edit the command in order to associate your user with the `subscription-admin` ClusterRole. Make sure to run the command even if you are using an administrative user!) -
-
-```
-<hub> $ oc patch clusterrolebinding.rbac open-cluster-management:subscription-admin -p '{"subjects": [{"apiGroup":"rbac.authorization.k8s.io", "kind":"User", "name":"workshop-admin"}]}'
-```
-
-6. You can now deploy the policies from your forked repository to Advanced Cluster Management.
-
-```
-<hub> $ ./deploy.sh --url https://github.com/<your-github-username>/rhacm-workshop.git --branch master --path 05.Governance-Risk-Compliance/exercise/exercise-policies --namespace rhacm-policies
-```
-
-7. Make sure that the policies are deployed in the **Governance** -> **Policies** tab in the Advanced Cluster Management for Kubernetes console.
-
-![policies-overview](images/policies-overview.png)
-
-
 8. Edit the LimitRange policy in [https://github.com/&lt;your-username>/rhacm-workshop/blob/master/05.Governance-Risk-Compliance/exercise/exercise-policies/limitrange-policy.yaml](https://github.com/michaelkotelnikov/rhacm-workshop/blob/master/05.Governance-Risk-Compliance/exercise/exercise-policies/limitrange-policy.yaml). Change the default container limit from 512Mi to 1024Mi.
 
 9. Make sure that you commit, and push the change to your fork.
@@ -501,16 +498,7 @@ spec:
 
 ## Templating Policies
 
-In this section you will use RHACM's templating mechanism for governance policies. In this scenario, you will create an RHACM application. The application deploys a mariadb database and a Prometheus exporter ([mysqld-exporter](https://github.com/prometheus/mysqld_exporter)) that connects to the database and exports metrics.
-
-The mysqld-exporter requires mariadb's connection information in order to connect to the database and export the metrics. Since secrets like _database passwords_ can be automatically generated in production environments, it might be required to use a dynamic template that passes such information to the exporter's configuration.
-
-In this scenario, you will pass two templated variables to the mysqld-exporter deployment using a dedicated ConfigMap resource. The variables are merged into a single *connection string* that the exporter uses to connect to the mariadb database.
-
-- _mariadb Service endpoint_ - The ConfigMap will populate the mariadb Service resource ClusterIP dynamically. The service endpoint might be different between managed clusters, using a template in this scenario can help the stability of the system. The `lookup` function is used to identify the service's ClusterIP - `{{ (lookup "v1" "Service" "mariadb-metrics" "mariadb").spec.clusterIP }}`.
-- _mariadb Root password_ - The ConfigMap will provide the connection password dynamically. The password can be different for database instances in multi cluster environments. Using a template in this scenario can solve inconsistencies between clusters. The `fromSecret` function is used to pull the password from mariadb's secret - `{{ fromSecret "mariadb-metrics" "mariadb" "MYSQL_ROOT_PASSWORD"}}`
-
-To further understand the structure of the application, go over the [application resources](exercise/exercise-application). All of the application resources are present in this directory besides the ConfigMap resource which is created using a templated policy.
+In this section you will use RHACM's templating mechanism for governance policies. 
 
 The next [templated policy](exercise/exercise-templates/metrics-configmap.yaml) is used to create the ConfigMap resource that the exporter uses as a connection string - 
 
@@ -527,7 +515,7 @@ data:
 Deploy the templated policy by running the next command on the hub cluster -
 
 ```
-<hub> $ oc apply -f https://raw.githubusercontent.com/michaelkotelnikov/rhacm-workshop/master/05.Governance-Risk-Compliance/exercise/exercise-templates/metrics-configmap.yaml
+<hub> $ oc apply -f https://raw.githubusercontent.com/ch-stark/rhacm-workshop/master/05.Governance-Risk-Compliance/exercise/exercise-templates/metrics-configmap.yaml
 ```
 
 The policy will appear at the Governance dashboard at a non-compliant state. The policy depends on the `mariadb` Secret resource and the `mariadb` Service resource. Since you have not created them yet, the policy is not able to create the desired ConfigMap resource.
@@ -535,7 +523,7 @@ The policy will appear at the Governance dashboard at a non-compliant state. The
 Deploy the mariadb-metrics application in order to create the mariadb and exporter instances. Deploy the application by running the next command -
 
 ```
-<hub> $ oc apply -f https://raw.githubusercontent.com/michaelkotelnikov/rhacm-workshop/master/05.Governance-Risk-Compliance/exercise/exercise-application/rhacm-resources/application.yaml
+<hub> $ oc apply -f https://raw.githubusercontent.com/ch-stark/rhacm-workshop/master/05.Governance-Risk-Compliance/exercise/exercise-application/rhacm-resources/application.yaml
 ```
 
 Wait until the application is available. After the application is available, make sure that the policy you have deployed is compliant in the Governance dashboard. Make sure that the template worked by running the next command on the managed cluster.
