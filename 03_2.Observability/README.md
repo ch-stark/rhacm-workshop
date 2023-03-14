@@ -3,6 +3,44 @@
 In this exercise you enable and use the `Observability` function in Red Hat Advanced Cluster Management. You will configure observability, explore the built-in dashboards, enable custom alerts using Thanos Ruler and design custom dashboards for your own organizational needs.
 
 ### 3.5 - Deploy ArgoCD Dashboard
+
+Create observability-metrics-custom-allowlist.yaml
+
+cat >observability-metrics-custom-allowlist.yaml<<YAML
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: observability-metrics-custom-allowlist
+data:
+  metrics_list.yaml: |
+    names:
+      - argocd_cluster_info
+      - argocd-server-metrics
+      - argocd_app_info
+      - argocd_app_sync_total
+      - argocd_app_reconcile_count
+      - argocd_app_reconcile_bucket
+      - argocd_app_k8s_request_total
+      - argocd_kubectl_exec_pending
+      - argocd-metrics
+      - argocd_cluster_api_resource_objects
+      - argocd_cluster_api_resources
+      - argocd_git_request_total
+      - argocd_git_request_duration_seconds_bucket
+      - argocd-repo-server
+      - argocd_redis_request_total
+YAML
+Apply config map against RHACM
+
+oc apply -n open-cluster-management-observability -f observability-metrics-custom-allowlist.yaml
+Dashboard List
+All the command beow need to be ran against the RHACM cluster in order to be shown on the grafana dashboard.
+
+Load argocd dashboard
+oc create -f config-files/argocd-dashboard.yaml
+
+
+
 ### 3.6 - Deploy OPA Dashboard
 
 Collect Metrics/Create Dashboard for Open Policy Agent
