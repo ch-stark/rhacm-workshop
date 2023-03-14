@@ -6,6 +6,7 @@ In this exercise you enable and use the `Observability` function in Red Hat Adva
 
 Create observability-metrics-custom-allowlist.yaml
 
+```
 cat >observability-metrics-custom-allowlist.yaml<<YAML
 kind: ConfigMap
 apiVersion: v1
@@ -30,15 +31,19 @@ data:
       - argocd-repo-server
       - argocd_redis_request_total
 YAML
+```
 Apply config map against RHACM
-
+```
 oc apply -n open-cluster-management-observability -f observability-metrics-custom-allowlist.yaml
+```
 Dashboard List
+
 All the command beow need to be ran against the RHACM cluster in order to be shown on the grafana dashboard.
 
 Load argocd dashboard
+```
 oc create -f config-files/argocd-dashboard.yaml
-
+```
 
 
 ### 3.6 - Deploy OPA Dashboard
