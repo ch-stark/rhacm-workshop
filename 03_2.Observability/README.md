@@ -19,15 +19,18 @@ On your managed cluster, complete the steps 4 in https://github.com/mcelep/opa-s
 After those steps, the OPA components and some demo constraints already created. 
 
 Also, an Prometheus exporter is created and it will provide the endpoint to provide the policy violation metrics.
-Create/Install ACM observability resources
+
+## Create/Install ACM observability resources
+
 On managed cluster, install ServiceMonitor, so that the opa metrics can be collected by OpenShift User Workload Prometheus.
 After this step, you should see the opa metrics available in OpenShift metrics page by search {job=”opa-exporter”}
 
 On managed cluster, install the Configmap for ACM observability allowlist, so that the opa metrics whose name is “opa_scorecard_violations” will be collected by acm observability addon.
+
 After this step, you should find the metrics “opa_scorecard_violations” available in ACM Grafana console -> Explore in Hub side
 
-Based on the original dashboard json, create the Configmap for opa dashboard and install it.
-Just create a yaml like below, and copy/paste the original dashboard json’s content under opa-violations.json in the yaml.
+Based on the original dashboard json, create the Configmap for opa dashboard and install it ).
+Just create a yaml like below, and copy/paste the original dashboard json’s content under [opa-violations.json](https://raw.githubusercontent.com/marcolan018/opa-scorecard/acm/acm-resources/dashboard.yaml) in the yaml.
 
 ```
 apiVersion: v1
