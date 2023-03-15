@@ -45,6 +45,7 @@ The operator will now begin the installation process.
 
 Setup the controller
 
+```
 <hub> $ cat >> ansible-controller.yaml << EOF
 apiVersion: automationcontroller.ansible.com/v1beta1
 kind: AutomationController
@@ -74,15 +75,13 @@ EOF
 <hub> $ oc apply -f ansible-controller.yaml
 ```
 
-```
-
 ## Ansible Automation Platform Governance Integration
 
 In this section, you will configure Ansible Automation Platform Jobs to run as a violation is initiated in one of your policies.
 
 ### Setting up Authentication using the CLI
 
-
+```
 <hub> $ cat >> ansible-policywithautomation.yaml << EOF
 ---
 apiVersion: v1
@@ -180,3 +179,4 @@ spec:
 EOF
 
 <hub> $ oc apply -f ansible-policywithautomation.yaml
+```
